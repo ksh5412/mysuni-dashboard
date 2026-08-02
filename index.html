@@ -1,4 +1,4 @@
-<!-- BUILD-STAMP v1 source=b8ab470b2962474b body=20b7763b07a3c521 generated=2026-08-01T17:44:16.453Z -->
+<!-- BUILD-STAMP v1 source=a732244974273b99 body=3f664ca9986f616b generated=2026-08-02T17:13:31.748Z -->
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -88,7 +88,7 @@ a.theme-toggle{text-decoration:none}
 /* KPI 7장 (Ni · Co · Li₂CO₃ · LiOH · Mn · 환율 · 평균단가) — 폭이 좁아지면 자동 줄바꿈 */
 .kpi-section{grid-area:kpi;display:grid;grid-template-columns:repeat(7,1fr);gap:10px}
 @media (max-width:1500px){ .kpi-section{grid-template-columns:repeat(4,1fr)} }
-@media (max-width:900px){ .kpi-section{grid-template-columns:repeat(2,1fr)} }
+@media (max-width:767px){ .kpi-section{grid-template-columns:repeat(2,1fr)} }
 .kpi-card{background:var(--bg-card);border:1px solid var(--border-color);border-radius:10px;padding:13px 14px;position:relative;overflow:hidden;box-shadow:var(--card-shadow)}
 .kpi-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--accent-blue)}
 .kpi-card.ni::before{background:var(--accent-green)}
@@ -235,20 +235,40 @@ tbody tr:hover{background:var(--bg-card-hover)}
    같은 파일이 화면 폭에 따라 자동 전환된다. 데스크톱 스타일은 그대로 두고
    좁은 폭에서만 덮어쓴다. Chart.js 는 responsive:true 라 컨테이너 폭을 따라온다. */
 
-/* 태블릿 이하: 우측 이슈 패널을 본문 아래로 내려 한 컬럼으로 쌓는다 */
-@media (max-width:1100px){
+/* 태블릿 (768~1200px 공통): KPI 시세 6장 = 3열 × 2줄, 평균단가는 전폭 요약 스트립.
+   탭·세그·칩·슬라이더 터치 타깃을 손가락 크기로 키운다 (마우스여도 무해). */
+@media (min-width:768px) and (max-width:1200px){
+  .kpi-section{grid-template-columns:repeat(3,1fr)}
+  .kpi-card.avg{grid-column:1/-1}
+  .tabs button{font-size:13.5px;padding:9px 15px 10px}
+  .seg button{font-size:11.5px;padding:8px 12px}
+  .chips button{font-size:11px;padding:7px 11px}
+  .filter-reset{font-size:11px;padding:7px 8px}
+  .sim-row input[type=range]{height:28px}
+  .search-box{padding:8px 10px}
+  .search-box button{padding:7px 13px;font-size:12px}
+}
+
+/* 태블릿 가로(1024~1200px): 이슈 패널을 오른쪽에 유지하되 300px 로 줄이고,
+   좁아진 본문에서 가격/원가 차트는 세로로 쌓는다 (1201px 이상 데스크톱은 원래대로). */
+@media (max-width:1200px){
+  .dashboard{grid-template-columns:1fr 300px;gap:16px;padding:16px 20px}
+  .dual{grid-template-columns:1fr}
+}
+
+/* 태블릿 세로(~1023px) 이하: 우측 이슈 패널을 본문 아래로 내려 한 컬럼으로 쌓는다 */
+@media (max-width:1023px){
   .dashboard{grid-template-columns:1fr;grid-template-areas:"kpi" "main" "issues";padding:14px 16px;gap:14px}
   .issue-panel{position:static;max-height:none}
   .issue-list{max-height:65vh}   /* 이슈 369건이 페이지를 무한정 늘리지 않게 내부 스크롤 */
 }
 
 @media (max-width:900px){
-  .dual{grid-template-columns:1fr}          /* 가격/원가 차트 세로로 쌓기 */
   .sim-grid{grid-template-columns:1fr}
 }
 
 /* 폰: 터치 타깃 확대 + 헤더 두 줄 재배치. 토글(다크·언어)은 항상 노출 유지 */
-@media (max-width:768px){
+@media (max-width:767px){
   .header{position:static;flex-wrap:wrap;padding:10px 12px;gap:8px 12px}   /* 폰에선 고정 해제 — 화면 점유 큼 */
   .header-controls{flex-wrap:wrap;gap:8px;width:100%;justify-content:flex-end}
   .theme-toggle{padding:9px 14px;font-size:13px}
