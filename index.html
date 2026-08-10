@@ -1,4 +1,4 @@
-<!-- BUILD-STAMP v1 source=0f4a413196f06864 body=d6529acca9e727e3 generated=2026-08-10T04:43:38.194Z -->
+<!-- BUILD-STAMP v1 source=6d719bed5dbb8b0a body=6017cc59f540d113 generated=2026-08-10T04:55:23.908Z -->
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -139,8 +139,6 @@ a.theme-toggle{text-decoration:none}
 /* 패널 제목 + 기간 선택 한 줄 */
 .panel-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:10px;flex-wrap:wrap}
 .panel-head .panel-title{margin-bottom:0}
-.chart-controls{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
-.trend-series-seg button{min-width:48px}
 /* 표시 통화 토글 — $ 와 ₩ 는 자릿수가 달라 버튼 폭을 고정해야 눌릴 때 안 흔들린다 */
 .cur-seg button{min-width:52px}
 .fx-hint{font-size:10px;color:var(--accent-yellow);margin-left:6px}
@@ -531,21 +529,13 @@ tbody tr:hover{background:var(--bg-card-hover)}
       <div class="tab-panel" data-panel="metal">
         <div class="panel-head">
           <div class="panel-title"><span data-i18n="p_trend_title">Ni · Li₂CO₃ · LiOH · Co 추이</span> &nbsp;<span class="panel-hint" data-i18n="p_trend_hint">점 = 해당일 뉴스 이슈 (빨강 상승 / 파랑 하락)</span></div>
-          <div class="chart-controls">
-            <div class="seg trend-series-seg" id="trendSeriesToggle" aria-label="원자재 그래프 표시 전환">
-              <button class="on" data-trend-preset="all" data-i18n="series_all">전체</button>
-              <button data-trend-preset="li" data-i18n="series_li_only">Li만</button>
-              <button data-trend-preset="ni" data-i18n="series_ni_only">Ni만</button>
-              <button data-trend-preset="co" data-i18n="series_co_only">Co만</button>
-            </div>
-            <div class="seg range-seg" data-sync="range">
-              <button data-range="7" data-i18n="d7">7일</button>
-              <button class="on" data-range="30" data-i18n="d30">30일</button>
-              <button data-range="60" data-i18n="d60">60일</button>
-            </div>
+          <div class="seg range-seg" data-sync="range">
+            <button data-range="7" data-i18n="d7">7일</button>
+            <button class="on" data-range="30" data-i18n="d30">30일</button>
+            <button data-range="60" data-i18n="d60">60일</button>
           </div>
         </div>
-        <!-- 원자재별 표시 on/off — 빠른 조합은 위 버튼, 개별 조정은 아래 스위치로 제공 -->
+        <!-- 원자재별 표시 on/off — 범례 클릭 숨김 기능을 명시적 스위치로 노출 -->
         <div class="metal-toggles" id="metalToggles" role="group" aria-label="원자재 라인 표시 전환"></div>
         <div class="chart-container tall"><canvas id="trendChart"></canvas></div>
         <div class="panel-hint" id="fcFootnote" style="margin-top:6px;line-height:1.7;font-size:11px"></div>
@@ -719,7 +709,6 @@ const I18N = {
     t_reset_cmp:'비교 필터·정렬 초기화', t_reset_f:'필터 초기화',
     tab_price:'구매가격 분석', tab_metal:'원자재 시세', tab_fx:'환율',
     d7:'7일', d30:'30일', d60:'60일',
-series_all:'전체', series_li_only:'Li만', series_ni_only:'Ni만', series_co_only:'Co만',
 sort_importance:'중요도순', sort_recent:'최신순',
     p_price_title:u=>`제품별 Total Price (${u})`, p_price_hint:'표 헤더 클릭 정렬이 그래프에도 그대로 적용',
     p_cur_title:'단가 표시 통화', p_cur_hint:'₩ 로 보면 시뮬레이터의 환율 슬라이더가 그래프에 그대로 반영된다',
@@ -782,7 +771,6 @@ sort_importance:'중요도순', sort_recent:'최신순',
     t_reset_cmp:'Reset compare filters & sort', t_reset_f:'Reset filters',
     tab_price:'Price Analysis', tab_metal:'Metal Prices', tab_fx:'FX Rate',
     d7:'7d', d30:'30d', d60:'60d',
-series_all:'All', series_li_only:'Li only', series_ni_only:'Ni only', series_co_only:'Co only',
 sort_importance:'By importance', sort_recent:'Most recent',
     p_price_title:u=>`Total Price by Product (${u})`, p_price_hint:'table-header sort applies to this chart too',
     p_cur_title:'Display currency', p_cur_hint:'switch to ₩ and the FX slider moves the bars',
@@ -1321,31 +1309,6 @@ const trendChart = new Chart(document.getElementById('trendChart'), {
     }}
 });
 
-/* 원자재 시세 그래프 빠른 표시 전환 — 범례의 개별 on/off는 그대로 유지하고,
-   Li만 보기처럼 자주 쓰는 조합을 한 번에 선택한다. */
-const TREND_PRESETS = {
-  all: new Set(['Ni','Li2CO3','LiOH','Co']),
-  li:  new Set(['Li2CO3','LiOH']),
-  ni:  new Set(['Ni']),
-  co:  new Set(['Co']),
-};
-let TREND_PRESET = 'all';
-function trendDatasetKey(ds, index){
-  if(index < 4) return ['Ni','Li2CO3','LiOH','Co'][index];
-  const label = String(ds.label ?? '');
-  return ['Ni','Li2CO3','LiOH','Co'].find(key => label.endsWith('_' + key)) ?? null;
-}
-function applyTrendPreset(){
-  const allowed = TREND_PRESETS[TREND_PRESET] ?? TREND_PRESETS.all;
-  trendChart.data.datasets.forEach((ds, i) => {
-    const key = trendDatasetKey(ds, i);
-    if(key) trendChart.setDatasetVisibility(i, allowed.has(key));
-  });
-  syncForecastVisibility();
-  trendChart.update('none');
-  renderMetalToggles();
-}
-
 /* ---------- 원자재 on/off 토글 바 ----------
    범례 클릭으로 라인을 숨기는 Chart.js 기본 동작은 처음 보는 사람이 알 수 없다.
    라인 색 견본 + 이름 + 스위치로 켜짐/꺼짐이 바로 보이는 버튼을 차트 위에 둔다. */
@@ -1385,7 +1348,6 @@ function renderMetalToggles(){
       trendChart.setDatasetVisibility(d.di, !trendChart.isDatasetVisible(d.di));
       syncForecastVisibility();
       trendChart.update();
-      document.querySelectorAll('#trendSeriesToggle button').forEach(x => x.classList.remove('on'));
       renderMetalToggles();
     });
     box.appendChild(b);
@@ -1641,14 +1603,6 @@ document.querySelectorAll('.range-seg').forEach(seg => {
   });
 });
 
-document.getElementById('trendSeriesToggle').addEventListener('click', e => {
-  const b = e.target.closest('button'); if(!b) return;
-  TREND_PRESET = b.dataset.trendPreset;
-  document.querySelectorAll('#trendSeriesToggle button').forEach(x =>
-    x.classList.toggle('on', x === b));
-  applyTrendPreset();
-});
-
 function applyRange(){
   // 두 차트가 같은 배열 인스턴스를 공유하지 않게 각각 복사해 넘긴다
   trendChart.data.labels = slice(days);
@@ -1662,7 +1616,6 @@ function applyRange(){
   fxChart.update();
   applyForecastOverlay();   // 라벨(미래 7일 포함)·점선·밴드 재계산
   drawMarkers('default');   // 마커 오프셋 재배치 + trendChart 전체 갱신
-  applyTrendPreset();
 }
 
 /* ---------- 비교 필터 · 정렬 ----------
