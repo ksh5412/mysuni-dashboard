@@ -1,4 +1,4 @@
-<!-- BUILD-STAMP v1 source=8e32933002ca4e06 body=612e96266017f2ba generated=2026-08-11T08:19:29.518Z -->
+<!-- BUILD-STAMP v1 source=08562b5b2707dbdf body=2784ae954f1d400b generated=2026-08-11T16:16:46.576Z -->
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -69,6 +69,7 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--bg-primary);color:va
 .theme-toggle:hover{border-color:var(--accent-blue);color:var(--text-primary)}
 .theme-toggle .ico{font-size:13px;line-height:1}
 a.theme-toggle{text-decoration:none}
+.guide-short{display:none}   /* 데스크톱: 전체 라벨만, 모바일에서 짧은 라벨로 교체 */
 #langToggle b{color:var(--accent-cyan);font-weight:700}
 .status-badge{display:flex;align-items:center;gap:8px;padding:6px 12px;background:rgba(16,185,129,.1);border:1px solid rgba(16,185,129,.3);border-radius:20px;font-size:12px;color:var(--accent-green)}
 .status-dot{width:8px;height:8px;background:var(--accent-green);border-radius:50%;animation:pulse 2s infinite}
@@ -339,7 +340,8 @@ tbody tr:hover{background:var(--bg-card-hover)}
 @media (max-width:480px){
   .title-group span{display:none}
   .title-group h1{font-size:16px}
-  a.theme-toggle span:not(.ico){display:none}   /* 설명서 링크는 ? 아이콘만 남긴다 */
+  a.theme-toggle .ico,a.theme-toggle .guide-full{display:none}   /* 모바일: ? 아이콘 대신 '설명서' 글자 */
+  a.theme-toggle .guide-short{display:inline}
   .kpi-section{gap:8px}
   .kpi-value{font-size:20px}
   .chart-container{height:220px}
@@ -372,7 +374,7 @@ tbody tr:hover{background:var(--bg-card-hover)}
    onclick="window.open(this.href, 'dashboardGuide'); return false;"
    data-i18n-title="t_guide"
    title="처음 보는 분을 위한 화면 사용 설명서">
-  <span class="ico">?</span><span data-i18n="guide">사용 설명서</span>
+  <span class="ico">?</span><span class="guide-full" data-i18n="guide">사용 설명서</span><span class="guide-short" data-i18n="guide_short">설명서</span>
 </a>
     <button class="theme-toggle" id="themeToggle" type="button" data-i18n-title="t_theme" title="라이트 · 다크 모드 전환">
       <span class="ico" id="themeIcon">🌙</span><span id="themeLabel">다크 모드</span>
@@ -699,7 +701,7 @@ const I18N = {
     doc_title:'Raw Material Monitor | 원자재 시황 모니터링',
     app_title:'원자재 시황 모니터링',
     app_subtitle:'mySUNI 써니C 18팀 | Cathode Raw Material Monitor',
-    guide:'사용 설명서', t_guide:'처음 보는 분을 위한 화면 사용 설명서',
+    guide:'사용 설명서', guide_short:'설명서', t_guide:'처음 보는 분을 위한 화면 사용 설명서',
     t_theme:'라이트 · 다크 모드 전환', t_lang:'한국어 · English 전환',
     light_mode:'라이트 모드', dark_mode:'다크 모드',
     k_ni:'Nickel', k_co:'Cobalt', k_lc:'Li₂CO₃ (탄산리튬)', k_lh:'LiOH (수산화리튬)',
@@ -761,7 +763,7 @@ sort_importance:'중요도순', sort_recent:'최신순',
     doc_title:'Raw Material Monitor | Cathode Raw Material Dashboard',
     app_title:'Raw Material Market Monitor',
     app_subtitle:'mySUNI SUNI-C Team 18 | Cathode Raw Material Monitor',
-    guide:'User Guide', t_guide:'On-screen user guide for first-time viewers',
+    guide:'User Guide', guide_short:'Guide', t_guide:'On-screen user guide for first-time viewers',
     t_theme:'Toggle light / dark mode', t_lang:'Switch language (한국어 / English)',
     light_mode:'Light Mode', dark_mode:'Dark Mode',
     k_ni:'Ni (Nickel)', k_co:'Co (Cobalt)', k_lc:'Li₂CO₃ (Lithium Carbonate)', k_lh:'LiOH (Lithium Hydroxide)',
